@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+<mapper namespace="com.example.demo.dao.CityDao">
+
+	<resultMap id="RM_City" type="com.example.demo.domain.City">
+        <result property="id" column="id"/>
+        <result property="provinceId" column="province_id"/>
+        <result property="cityName" column="city_name"/>
+        <result property="description" column="description"/>
+	</resultMap>
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+		id,province_id,city_name,description
+	    ]]>
+	</sql>
+
+	<!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    <![CDATA[
+        INSERT INTO city (
+        	id ,
+        	province_id ,
+        	city_name ,
+        	description 
+        ) VALUES (
+        	#{id} ,
+        	#{provinceId} ,
+        	#{cityName} ,
+        	#{description} 
+        )
+    ]]>
+	</insert>
+    
+	<update id="update" >
+    <![CDATA[
+        UPDATE city SET
+	        province_id = #{provinceId} ,
+	        city_name = #{cityName} ,
+	        description = #{description} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+
+    <delete id="delete">
+    <![CDATA[
+        DELETE FROM city WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+    
+    <select id="getById" resultMap="RM_City">
+		SELECT <include refid="columns" />
+	    <![CDATA[
+		    FROM city 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+	</select>
+	
+	<sql id="findPage_where">
+		<where>	      				
+	       <if test="id != null">
+				AND id = #{id}
+			</if>
+	       <if test="provinceId != null">
+				AND province_id = #{provinceId}
+			</if>
+	       <if test="cityName != null">
+				AND city_name = #{cityName}
+			</if>
+	       <if test="description != null">
+				AND description = #{description}
+			</if>
+		</where>
+	</sql>
+		
+    <select id="count" resultType="long">
+        SELECT count(id) FROM city 
+		<include refid="findPage_where"/>    
+    </select>
+
+    <select id="findAll" resultMap="RM_City">
+    SELECT <include refid="columns"/> FROM city where 1=1
+    </select>
+
+    <select id="select" resultMap="RM_City">
+    SELECT <include refid="columns"/> FROM city where 1=1
+    <include refid="findPage_where"/> limit 0,1
+    </select>
+
+    <select id="findPage" resultMap="RM_City">
+    	SELECT <include refid="columns" />
+	    FROM city 
+		<include refid="findPage_where"/>
+    </select>
+
+	
+</mapper>
+
